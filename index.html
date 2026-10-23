@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Кемет — кінематографічна історія Стародавнього Єгипту: піраміди, фараони, гробниці, ієрогліфи.">
+<title>Кемет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700&family=Noto+Sans+Egyptian+Hieroglyphs&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: sticky full-bleed WebGL "film" of ten scenes driven by scroll (or the Play button), a fixed gold-dust layer over everything, then chronology, cartouche and quiz on the same ground */
+:root{
+  --f-display:"Cormorant Garamond","Cormorant",Georgia,"Times New Roman",serif;
+  --f-body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-glyph:"Noto Sans Egyptian Hieroglyphs","Segoe UI Historic",serif;
+  --gl:max(16px, env(safe-area-inset-left, 0px));
+  --gr:max(16px, env(safe-area-inset-right, 0px));
+  --bg:#0a0806; --ink:#f6efdf; --muted:#d6cab2; --gold:#e6bf6c; --line:rgba(246,239,223,.16);
+  color-scheme:dark;
+  background:#0a0806;
+}
+body{
+  --bg:#0a0806; --bg2:#15100a; --ink:#f7f0e1; --muted:#d6cab2; --gold:#e6bf6c; --gold-2:#f6dc98;
+  --line:rgba(247,240,225,.16); --chip:rgba(10,8,6,.5); --barbg:rgba(10,8,6,.62);
+  --tshadow:0 2px 22px rgba(0,0,0,.7), 0 1px 3px rgba(0,0,0,.65);
+  --sheen:linear-gradient(100deg,#a57a35 0%,#f7dd9a 18%,#cf9f4a 36%,#fff4cf 50%,#b98839 64%,#efcd80 82%,#a57a35 100%);
+  --ok:#8fd1b2; --bad:#e58a72;
+  color-scheme:dark;
+}
+body[data-skin="light"]{
+  --bg:#f4ebd8; --bg2:#ebdfc4; --ink:#1b140a; --muted:#4f402a; --gold:#8c5f16; --gold-2:#b07a22;
+  --line:rgba(27,20,10,.17); --chip:rgba(252,247,236,.72); --barbg:rgba(244,235,216,.78);
+  --tshadow:0 1px 16px rgba(244,235,216,.95), 0 0 2px rgba(244,235,216,.9);
+  --sheen:linear-gradient(100deg,#6b450c 0%,#b8862f 18%,#7a5214 36%,#d6a54d 50%,#6b450c 64%,#a8782a 82%,#6b450c 100%);
+  --ok:#1f7a55; --bad:#a8432a;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .6s,color .6s}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:70;background:var(--bg)}
+h1,h2,h3{font-family:var(--f-display);font-weight:500;line-height:1;margin:0;text-wrap:balance;letter-spacing:-.005em}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:999px}
+.glyph{font-family:var(--f-glyph)}
+.gold{background:var(--sheen);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:sheen 7s linear infinite;text-shadow:none}
+@keyframes sheen{from{background-position:0% 50%}to{background-position:260% 50%}}
+
+/* ---------- top bar ---------- */
+.bar{position:fixed;z-index:50;top:env(safe-area-inset-top,0px);left:0;right:0;display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:14px 26px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));background:linear-gradient(to bottom,var(--barbg),transparent);pointer-events:none}
+.bar>*{pointer-events:auto}
+.logo{font-family:var(--f-display);font-weight:600;font-size:22px;letter-spacing:.34em;text-decoration:none;color:var(--ink);display:flex;gap:10px;align-items:center;text-shadow:var(--tshadow)}
+.logo .glyph{font-size:22px;letter-spacing:0;color:var(--gold)}
+.tools{display:flex;align-items:center;gap:8px}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--chip);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.seg button{all:unset;cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.08em;padding:6px 11px;border-radius:999px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.icon-btn{all:unset;cursor:pointer;width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--chip);color:var(--ink);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.icon-btn svg{width:18px;height:18px}
+.play{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:700;letter-spacing:.06em;padding:10px 18px 10px 14px;border-radius:999px;color:#1b1206;background:var(--sheen);background-size:260% 100%;animation:sheen 7s linear infinite;box-shadow:0 6px 30px rgba(230,191,108,.35)}
+.play svg{width:14px;height:14px}
+.pill{font-size:12.5px;font-weight:600;letter-spacing:.04em;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:10px 16px;background:var(--chip);text-decoration:none;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+@media (max-width:760px){ .pill{display:none} .bar .play span{display:none} .bar .play{padding:10px 12px} .logo{font-size:18px;letter-spacing:.24em} }
+.progress{position:fixed;left:0;top:env(safe-area-inset-top,0px);height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:var(--sheen);background-size:260% 100%;z-index:60}
+
+/* ---------- gold dust layer ---------- */
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+
+/* ---------- story ---------- */
+#story{position:relative}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--bg)}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+.fallback{position:absolute;inset:0;z-index:0}
+.fallback img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s}
+.fallback img.on{opacity:.7}
+
+.panel{position:absolute;z-index:4;left:0;top:0;bottom:0;width:min(660px,100%);display:flex;flex-direction:column;justify-content:center;gap:20px;padding-left:max(clamp(24px,6vw,96px),env(safe-area-inset-left,0px));padding-right:24px;padding-block:96px 90px;pointer-events:none;text-shadow:var(--tshadow)}
+.panel .eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.panel h2{font-size:clamp(46px,6.2vw,96px);font-weight:500;color:var(--ink)}
+.panel .w{display:inline-block;will-change:transform,opacity,filter}
+.panel h2 em{font-style:italic;font-weight:600}
+.panel .body{font-size:clamp(16.5px,1.25vw,18.5px);line-height:1.68;font-weight:500;color:var(--ink);max-width:44ch}
+.panel .chips{display:flex;flex-wrap:wrap;gap:10px}
+.panel .chip{border:1px solid var(--line);border-radius:999px;padding:8px 15px;font-size:13.5px;font-weight:500;color:var(--ink);background:var(--chip);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);text-shadow:none}
+.panel .chip b{font-weight:700;color:var(--gold);margin-right:7px}
+.panel .ghost{position:absolute;z-index:-1;left:max(clamp(8px,3vw,60px),env(safe-area-inset-left,0px));top:50%;margin-top:-30vh;font-size:56vh;line-height:1;opacity:.13;pointer-events:none;text-shadow:none;will-change:transform}
+.panel .ghost span{display:block;animation:floaty 11s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-22px) rotate(3deg)}}
+.panel.hero .kemet{font-size:clamp(72px,11vw,176px);font-weight:700;letter-spacing:.08em;line-height:.86;display:flex;flex-wrap:nowrap}
+.panel.hero h2{font-size:clamp(34px,3.6vw,56px)}
+.panel .actions{display:flex;flex-wrap:wrap;align-items:center;gap:18px;pointer-events:auto}
+.hint{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:500;color:var(--muted)}
+.mouse{flex:none;width:20px;height:32px;border:1.5px solid var(--muted);border-radius:12px;position:relative}
+.mouse::after{content:"";position:absolute;left:50%;top:7px;width:2px;height:6px;margin-left:-1px;border-radius:2px;background:var(--gold);animation:wheel 1.8s ease-in-out infinite}
+@keyframes wheel{0%{transform:translateY(0);opacity:1}70%{transform:translateY(10px);opacity:0}100%{opacity:0}}
+
+.hud{position:absolute;z-index:4;left:max(clamp(24px,6vw,96px),env(safe-area-inset-left,0px));right:max(24px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:12px;color:var(--muted);text-shadow:var(--tshadow)}
+.counter{display:flex;align-items:center;gap:14px;letter-spacing:.14em;font-variant-numeric:tabular-nums;font-weight:600}
+.counter .track{width:140px;height:2px;background:var(--line);position:relative;overflow:hidden;border-radius:2px}
+.counter .track i{position:absolute;inset:0;background:var(--sheen);background-size:260% 100%;transform-origin:0 50%;transform:scaleX(0)}
+.counter b{color:var(--ink)}
+.tc{white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:.08em;display:flex;align-items:center;gap:8px}
+.tc i{width:7px;height:7px;border-radius:50%;background:var(--bad);box-shadow:0 0 10px var(--bad);animation:blink 1.4s steps(2) infinite}
+@keyframes blink{50%{opacity:.2}}
+.credit{font-size:11px;text-align:right;max-width:40vw}
+.chapters{position:absolute;z-index:4;right:max(24px,env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:3px;list-style:none;margin:0;padding:0;text-shadow:var(--tshadow)}
+.chapters button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:5px 0;font-size:12.5px;font-weight:600;letter-spacing:.04em;color:var(--muted);opacity:.75;transition:color .3s,opacity .3s}
+.chapters button i{display:block;width:14px;height:2px;border-radius:2px;background:currentColor;transition:width .4s}
+.chapters button span{opacity:0;transform:translateX(6px);transition:opacity .3s,transform .3s}
+.chapters:hover button span,.chapters button.on span{opacity:1;transform:none}
+.chapters button.on{color:var(--ink);opacity:1}
+.chapters button.on i{width:36px;background:var(--gold)}
+.chapters button:focus-visible{outline:1px solid var(--gold);outline-offset:2px}
+
+.loader{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:65;transition:opacity .8s}
+.loader.done{opacity:0;pointer-events:none}
+.loader div{display:grid;justify-items:center;gap:14px}
+.loader .glyph{font-size:64px;animation:floaty 3s ease-in-out infinite}
+.loader .bar2{width:160px;height:2px;background:var(--line);overflow:hidden}
+.loader .bar2 i{display:block;height:100%;background:var(--sheen);background-size:260% 100%;transform-origin:0 50%;transform:scaleX(0);transition:transform .3s}
+.loader small{font-size:11px;letter-spacing:.3em;color:var(--muted)}
+
+@media (max-width:760px){
+  .panel{top:auto;width:100%;justify-content:flex-end;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));padding-top:34vh;gap:13px}
+  .panel h2{font-size:clamp(38px,11vw,54px)}
+  .panel.hero .kemet{font-size:clamp(60px,18vw,86px)}
+  .panel.hero h2{font-size:clamp(28px,8vw,38px)}
+  .panel .body{font-size:15.5px;line-height:1.6}
+  .panel.hero .body{display:none}
+  .panel .ghost{font-size:40vh;top:6vh;margin-top:0;left:auto;right:4vw}
+  .chapters{display:none}
+  .credit{display:none}
+  .tc .tot{display:none}
+  .counter .track{width:80px}
+}
+
+/* ---------- after the story ---------- */
+.sec{position:relative;z-index:4;padding-block:clamp(90px,12vw,170px);border-top:1px solid var(--line)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
+.kicker{font-size:12.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.sec h2{font-size:clamp(46px,6vw,92px);margin-top:16px}
+.sec h2 em{font-style:italic;font-weight:600}
+.sec .intro{font-size:18px;color:var(--muted);max-width:56ch;margin-top:20px;font-weight:500}
+.rv{transition:opacity 1s cubic-bezier(.2,.8,.2,1),transform 1s cubic-bezier(.2,.8,.2,1)}
+.rv.hide{opacity:0;transform:translateY(40px)}
+
+.eras{margin-top:56px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.era{background:var(--bg);padding:30px 28px;display:grid;gap:10px;align-content:start;position:relative;overflow:hidden;transition:background .4s}
+.era::after{content:"";position:absolute;inset:auto 0 0 0;height:2px;background:var(--sheen);background-size:260% 100%;transform:scaleX(0);transform-origin:0 50%;transition:transform .6s}
+.era:hover::after{transform:scaleX(1);animation:sheen 4s linear infinite}
+.era:hover{background:var(--bg2)}
+.era .yr{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--gold);font-variant-numeric:tabular-nums}
+.era h3{font-size:32px;font-weight:600}
+.era p{color:var(--muted);font-size:15px}
+@media (max-width:900px){.eras{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.eras{grid-template-columns:minmax(0,1fr)}}
+
+.writer{margin-top:44px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:40px;align-items:center}
+@media (max-width:820px){.writer{grid-template-columns:minmax(0,1fr)}}
+.writer label{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:10px}
+.writer input{width:100%;font:inherit;font-family:var(--f-display);font-weight:600;font-size:36px;padding:10px 2px;border:0;border-bottom:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:0}
+.writer input:focus{outline:none;border-color:var(--gold)}
+.writer .note{font-size:13.5px;color:var(--muted);margin-top:12px}
+.cwrap{overflow-x:auto;padding:16px 18px}
+.cartouche{display:inline-flex;align-items:flex-end;gap:8px;padding:24px 42px 20px 32px;border:3px solid var(--gold);border-radius:999px;position:relative;min-height:126px;box-shadow:0 0 50px rgba(230,191,108,.18),inset 0 0 40px rgba(230,191,108,.08)}
+.cartouche::after{content:"";position:absolute;right:-13px;top:14%;bottom:14%;width:5px;border-radius:3px;background:var(--gold)}
+.cartouche .g{display:grid;justify-items:center;gap:6px}
+.cartouche .g span{font-family:var(--f-glyph);font-size:50px;line-height:1;animation:rise .55s cubic-bezier(.2,.9,.3,1.3) both, sheen 7s linear infinite}
+.cartouche .g small{font-size:10.5px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+@keyframes rise{from{transform:translateY(18px) scale(.7);opacity:0}to{transform:none;opacity:1}}
+
+.quiz{margin-top:44px;max-width:780px}
+.qmeta{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:16px;font-variant-numeric:tabular-nums}
+.qtext{font-family:var(--f-display);font-weight:600;font-size:clamp(30px,3.4vw,44px);line-height:1.1;margin-bottom:24px}
+.qopts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.qopts{grid-template-columns:minmax(0,1fr)}}
+.qopt{font:inherit;font-size:16px;font-weight:500;color:var(--ink);text-align:left;padding:15px 20px;border-radius:999px;border:1px solid var(--line);background:var(--chip);cursor:pointer;transition:border-color .2s,background .2s,transform .2s}
+.qopt:hover:not(:disabled){border-color:var(--gold);transform:translateY(-2px)}
+.qopt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,transparent)}
+.qopt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 16%,transparent)}
+.qopt:disabled{cursor:default}
+.qexp{margin-top:18px;color:var(--muted);min-height:26px;font-size:16px}
+.qbtn{margin-top:22px;font:inherit;font-size:14px;font-weight:700;letter-spacing:.06em;padding:13px 26px;border-radius:999px;border:0;background:var(--ink);color:var(--bg);cursor:pointer}
+
+footer{position:relative;z-index:4;border-top:1px solid var(--line);padding-block:80px calc(40px + env(safe-area-inset-bottom,0px))}
+footer .big{font-family:var(--f-display);font-weight:700;font-size:clamp(76px,16vw,230px);line-height:.8;letter-spacing:.06em;display:flex;align-items:center;gap:.2em;flex-wrap:wrap}
+footer .big .glyph{font-size:.6em;color:var(--gold);letter-spacing:0}
+.credits{margin-top:44px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px 28px;font-size:12.5px;color:var(--muted)}
+.credits a{text-decoration:none;border-bottom:1px solid var(--line)}
+.credits a:hover{color:var(--ink)}
+
+@media (prefers-reduced-motion:reduce){.mouse::after,.cartouche .g span,.gold,.play,.panel .ghost span,.tc i,.loader .glyph{animation:none}}
+</style>
+</head>
+<body>
+<div class="loader" id="loader"><div><span class="glyph gold">𓋹</span><div class="bar2"><i id="ldBar"></i></div><small id="ldPct">0%</small></div></div>
+<div class="progress" id="progress"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<header class="bar">
+  <a class="logo" href="#story"><span class="glyph">𓂀</span><span id="logoTxt">КЕМЕТ</span></a>
+  <div class="tools">
+    <div class="seg" role="group" aria-label="Мова / Language">
+      <button type="button" id="langUk" data-lang="uk" aria-pressed="true">UA</button>
+      <button type="button" id="langEn" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <button class="icon-btn" type="button" id="skinBtn" aria-label="Світла тема"></button>
+    <button class="play" type="button" id="playTop"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg><span data-t="play">Дивитись</span></button>
+    <a class="pill" href="#quiz" data-t="quizPill">Іспит писаря</a>
+  </div>
+</header>
+
+<section id="story">
+  <div class="stage" id="stage">
+    <canvas id="gl" aria-hidden="true"></canvas>
+    <div class="fallback" id="fallback" hidden></div>
+    <div id="panels"></div>
+    <ul class="chapters" id="chapters"></ul>
+    <div class="hud">
+      <div class="counter" aria-hidden="true"><b id="cNum">01</b><div class="track"><i id="cBar"></i></div><span id="cTot">10</span></div>
+      <div class="tc" aria-hidden="true"><i></i><span id="tc">00:00:00:00</span></div>
+      <div class="credit" id="credit"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="eras">
+  <div class="wrap">
+    <div class="kicker rv" data-t="erasK"></div>
+    <h2 class="rv" data-t="erasH"></h2>
+    <p class="intro rv" data-t="erasP"></p>
+    <div class="eras" id="eraGrid"></div>
+  </div>
+</section>
+
+<section class="sec" id="name">
+  <div class="wrap">
+    <div class="kicker rv" data-t="nameK"></div>
+    <h2 class="rv" data-t="nameH"></h2>
+    <p class="intro rv" data-t="nameP"></p>
+    <div class="writer rv">
+      <div>
+        <label for="nameIn" data-t="nameLabel"></label>
+        <input id="nameIn" type="text" maxlength="14" value="Нефертіті" autocomplete="off" spellcheck="false">
+        <p class="note" data-t="nameNote"></p>
+      </div>
+      <div class="cwrap"><div class="cartouche" id="cart" aria-live="polite"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="quiz">
+  <div class="wrap">
+    <div class="kicker rv" data-t="quizK"></div>
+    <h2 class="rv" data-t="quizH"></h2>
+    <div class="quiz rv">
+      <div class="qmeta"><span id="qNum"></span><span id="qScore"></span></div>
+      <div class="qtext" id="qText"></div>
+      <div class="qopts" id="qOpts"></div>
+      <div class="qexp" id="qExp" aria-live="polite"></div>
+      <button class="qbtn" id="qNext" type="button" hidden></button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="big"><span class="glyph">𓋹</span><span class="gold" id="footTxt">КЕМЕТ</span></div>
+    <div class="credits" id="credits"></div>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(function(){
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = s => document.querySelector(s);
+const store = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} } };
+
+/* ================= CONTENT ================= */
+const PAGES = {"pyr":"https://commons.wikimedia.org/wiki/File:All_Gizah_Pyramids.jpg","sph":"https://commons.wikimedia.org/wiki/File:Great_Sphinx_of_Giza_-_20080716a.jpg","hat":"https://commons.wikimedia.org/wiki/File:Seated_Statue_of_Hatshepsut_MET_Hatshepsut2012.jpg","nef":"https://commons.wikimedia.org/wiki/File:Nofretete_Neues_Museum.jpg","tut":"https://commons.wikimedia.org/wiki/File:CairoEgMuseumTaaMaskMostlyPhotographed.jpg","abu":"https://commons.wikimedia.org/wiki/File:Abu_Simbel,_Ramesses_Temple,_front,_Egypt,_Oct_2004.jpg","sar":"https://commons.wikimedia.org/wiki/File:Sarcophagus_lid_of_Ramses_VI_-_Pharaoh_exhibit_-_Cleveland_Museum_of_Art_(28045501325).jpg","tomb":"https://commons.wikimedia.org/wiki/File:Maler_der_Grabkammer_der_Nefertari_001.jpg","jud":"https://commons.wikimedia.org/wiki/File:The_judgement_of_the_dead_in_the_presence_of_Osiris_(cropped).jpg","ros":"https://commons.wikimedia.org/wiki/File:Rosetta_Stone.JPG"};
+const S = [
+ {k:'pyr', fit:0, cut:1, ray:1.0, g:'𓉴', hero:true, cr:'Ricardo Liberato · CC BY-SA 2.0',
+  uk:{short:'Гіза', eye:'Стародавній Єгипет · бл. 3100 — 30 до н. е.', t:'Країна, що <em>пам\'ятає вічність</em>', b:'Три піраміди Гізи — гробниці фараонів Хуфу, Хафра й Менкаура. Велика піраміда мала 146,6 м і майже 3 800 років лишалася найвищою спорудою, створеною людьми.', c:[['2,3 млн','блоків'],['IV','династія']]},
+  en:{short:'Giza', eye:'Ancient Egypt · c. 3100 — 30 BC', t:'The land that <em>remembers eternity</em>', b:'The three pyramids of Giza are the tombs of the pharaohs Khufu, Khafre and Menkaure. The Great Pyramid rose 146.6 m and stayed the tallest structure built by humans for almost 3,800 years.', c:[['2.3 million','blocks'],['4th','dynasty']]}},
+ {k:'sph', fit:0, cut:0, ray:1.0, g:'𓃬', cr:'Barcex · CC BY-SA 3.0',
+  uk:{short:'Сфінкс', eye:'Гіза · бл. 2500 до н. е.', t:'Страж <em>плато</em>', b:'Великого Сфінкса вирізали просто з вапнякової скелі. Тіло лева, голова царя — найімовірніше, Хафра. Ніс статуя втратила ще в Середньовіччі.', c:[['≈73 м','завдовжки'],['≈20 м','заввишки']]},
+  en:{short:'Sphinx', eye:'Giza · c. 2500 BC', t:'Guardian of <em>the plateau</em>', b:'The Great Sphinx was carved straight out of the limestone bedrock. It has a lion\'s body and a king\'s head, most likely Khafre\'s. The statue lost its nose back in the Middle Ages.', c:[['≈73 m','long'],['≈20 m','high']]}},
+ {k:'hat', fit:1, cut:1, ray:0.5, cx:.7, sc:.96, g:'𓇓', cr:'The Metropolitan Museum of Art · CC0',
+  uk:{short:'Хатшепсут', eye:'Нове царство · 1479 — 1458 до н. е.', t:'Жінка, що стала <em>фараоном</em>', b:'Хатшепсут правила як повноцінний цар, і скульптори зображували її з царськими атрибутами. Вона відправила експедицію до далекої країни Пунт по пахощі, золото й чорне дерево.', c:[['≈21 рік','при владі'],['Дейр-ель-Бахрі','її храм']]},
+  en:{short:'Hatshepsut', eye:'New Kingdom · 1479 — 1458 BC', t:'The woman who became <em>pharaoh</em>', b:'Hatshepsut ruled as a full king, and sculptors portrayed her with royal regalia. She sent an expedition to the distant land of Punt for incense, gold and ebony.', c:[['≈21 years','on the throne'],['Deir el-Bahari','her temple']]}},
+ {k:'nef', fit:1, cut:1, ray:0.5, cx:.7, sc:.98, g:'𓄤', cr:'Philip Pikart · CC BY-SA 3.0',
+  uk:{short:'Нефертіті', eye:'Амарна · бл. 1345 до н. е.', t:'Прекрасна <em>прийшла</em>', b:'Так перекладається ім\'я Нефертіті, дружини фараона Ехнатона. Її бюст створив скульптор Тутмос. Археологи знайшли його в руїнах майстерні в Амарні.', c:[['1912','знахідка'],['Берлін','Новий музей']]},
+  en:{short:'Nefertiti', eye:'Amarna · c. 1345 BC', t:'The beautiful one <em>has come</em>', b:'That is what the name Nefertiti means. She was the wife of the pharaoh Akhenaten. The sculptor Thutmose made her bust, and archaeologists found it in the ruins of his workshop at Amarna.', c:[['1912','discovered'],['Berlin','Neues Museum']]}},
+ {k:'tut', fit:1, cut:1, ray:0.7, cx:.7, sc:.98, g:'𓋹', cr:'Roland Unger · Public domain',
+  uk:{short:'Тутанхамон', eye:'Долина царів · бл. 1323 до н. е.', t:'Золото <em>хлопчика-царя</em>', b:'Тутанхамон зійшов на трон дитиною і помер близько 19 років. 1922 року Говард Картер відкрив його майже непограбовану гробницю. Маска з чистого золота, лазуриту й скла лежала просто на мумії.', c:[['10,2 кг','золота'],['≈5 400','предметів']]},
+  en:{short:'Tutankhamun', eye:'Valley of the Kings · c. 1323 BC', t:'Gold of <em>the boy king</em>', b:'Tutankhamun took the throne as a child and died at about 19. In 1922 Howard Carter opened his almost unplundered tomb. The mask of solid gold, lapis lazuli and glass lay right on the mummy.', c:[['10.2 kg','of gold'],['≈5,400','objects']]}},
+ {k:'abu', fit:0, cut:0, ray:1.0, g:'𓇳', cr:'Wikimedia Commons · CC BY-SA 2.0',
+  uk:{short:'Рамзес II', eye:'Нубія · бл. 1264 до н. е.', t:'Рамзес II, <em>Великий</em>', b:'Чотири двадцятиметрові статуї фараона висічені просто в скелі Абу-Сімбела. У 1960-х храм розпиляли на блоки й підняли вище, щоб врятувати від води нової Асуанської греблі.', c:[['66 років','правління'],['на 65 м','вище']]},
+  en:{short:'Ramesses II', eye:'Nubia · c. 1264 BC', t:'Ramesses II, <em>the Great</em>', b:'Four 20-metre statues of the pharaoh are cut straight into the cliff at Abu Simbel. In the 1960s the temple was sawn into blocks and lifted higher to save it from the waters of the new Aswan Dam.', c:[['66 years','of rule'],['65 m','higher']]}},
+ {k:'sar', fit:1, cut:1, ray:0.5, cx:.68, sc:.94, g:'𓂀', cr:'Tim Evanson · CC BY-SA 2.0',
+  uk:{short:'Гробниці', eye:'Долина царів · XII ст. до н. е.', t:'Обличчя <em>для вічності</em>', b:'Після епохи пірамід фараонів ховали в потаємних скельних гробницях біля Фів. Тіло 70 днів муміфікували й клали у вкладені одна в одну труни. Це обличчя з кришки саркофага Рамзеса VI.', c:[['60+','гробниць'],['70 днів','муміфікації']]},
+  en:{short:'Tombs', eye:'Valley of the Kings · 12th c. BC', t:'A face <em>for eternity</em>', b:'After the age of pyramids, pharaohs were buried in hidden rock-cut tombs near Thebes. The body was mummified for 70 days and laid in coffins nested one inside another. This face is from the sarcophagus lid of Ramesses VI.', c:[['60+','tombs'],['70 days','of mummification']]}},
+ {k:'tomb', fit:1, cut:0, ray:0.6, cx:.7, sc:.98, g:'𓅃', cr:'Public domain',
+  uk:{short:'Нефертарі', eye:'Долина цариць · бл. 1255 до н. е.', t:'Фарби, яким <em>3 000 років</em>', b:'Гробницю цариці Нефертарі, улюбленої дружини Рамзеса II, називають Сікстинською капелою Єгипту. Її стіни показують шлях цариці через потойбіччя. Тут сидить сонячний бог Ра-Горахті з головою сокола.', c:[['QV66','номер гробниці'],['1904','відкрита']]},
+  en:{short:'Nefertari', eye:'Valley of the Queens · c. 1255 BC', t:'Colours <em>3,000 years old</em>', b:'The tomb of Queen Nefertari, beloved wife of Ramesses II, is called the Sistine Chapel of Egypt. Its walls show the queen\'s journey through the afterlife. Here sits the sun god Ra-Horakhty with the head of a falcon.', c:[['QV66','tomb number'],['1904','discovered']]}},
+ {k:'jud', fit:0, cut:1, ray:0.6, g:'𓆄', cr:'Папірус Хунефера · Public domain',
+  uk:{short:'Суд Осіріса', eye:'Фіви · бл. 1275 до н. е.', t:'Зважування <em>серця</em>', b:'Анубіс веде писаря Хунефера до терезів і кладе його серце проти пера богині Маат. Тот записує вирок. Серце легке — і Гор веде померлого до трону Осіріса.', c:[['Книга мертвих','сувій'],['Британський музей','зберігається']]},
+  en:{short:'Judgement', eye:'Thebes · c. 1275 BC', t:'Weighing <em>the heart</em>', b:'Anubis leads the scribe Hunefer to the scales and weighs his heart against the feather of the goddess Maat. Thoth records the verdict. The heart is light, so Horus leads the dead man to the throne of Osiris.', c:[['Book of the Dead','scroll'],['British Museum','kept at']]}},
+ {k:'ros', fit:1, cut:1, ray:0.6, cx:.7, sc:.96, g:'𓏞', cr:'Hans Hillewaert · CC BY-SA 4.0',
+  uk:{short:'Розетський камінь', eye:'Мемфіс · 196 до н. е.', t:'Ключ до <em>мови богів</em>', b:'Той самий указ записано ієрогліфами, демотичним письмом і грецькою. Грецьку вчені знали, тож змогли звірити з нею ієрогліфи. 1822 року Шампольйон розгадав систему, і Єгипет знову заговорив.', c:[['1799','знайдено'],['1822','розшифровано']]},
+  en:{short:'Rosetta Stone', eye:'Memphis · 196 BC', t:'The key to <em>the words of the gods</em>', b:'One decree, written in hieroglyphs, Demotic script and Greek. Scholars could read the Greek, so they could match the hieroglyphs against it. In 1822 Champollion cracked the system, and Egypt spoke again.', c:[['1799','found'],['1822','deciphered']]}}
+];
+const N = S.length;
+
+const T = {
+ uk:{ kemet:'КЕМЕТ', play:'Дивитись', pause:'Пауза', replay:'Ще раз', quizPill:'Іспит писаря', toLight:'Світла тема', toDark:'Темна тема', photo:'Фото',
+  hint:'Гортай униз або натисни «Дивитись». Проведи курсором по статуї.', story:'Історія Стародавнього Єгипту в кадрах', chapters:'Кадри',
+  erasK:'Хронологія', erasH:'Три тисячі років <em class="gold">одним поглядом</em>', erasP:'Єгипетську історію ділять на царства й перехідні періоди. Дати округлені: для найдавніших епох похибка сягає десятиліть.',
+  nameK:'Медут нечер · слова богів', nameH:'Твоє ім\'я <em class="gold">у картуші</em>', nameP:'Царські імена писали в картуші — овалі з мотузки, що мав берегти ім\'я вічно. Голосних єгиптяни не писали, тому тут для кожного звуку взято найближчий знак.',
+  nameLabel:'Напиши ім\'я', nameNote:'Спрощена транслітерація, а не справжній давньоєгипетський запис.', nameDefault:'Нефертіті', ankh:'анх',
+  quizK:'Іспит писаря', quizH:'Чи пройдеш <em class="gold">до Полів Іару?</em>', q:'Питання', pts:'Бали', next:'Далі', result:'Результат', done:'Готово', again:'Почати знову', right:'Правильно. ', wrong:'Ні. ', of:'з',
+  perfect:'Бездоганно. Твоє серце легше за перо.', retry:'Прогорни кадри ще раз і спробуй знову.', titles:['Учень писаря','Учень писаря','Писар храму','Писар храму','Жрець','Візир','Сам Тот'],
+  credits:'Фото з Вікісховища (Wikimedia Commons)' },
+ en:{ kemet:'KEMET', play:'Watch', pause:'Pause', replay:'Replay', quizPill:'Scribe\'s exam', toLight:'Light theme', toDark:'Dark theme', photo:'Photo',
+  hint:'Scroll down or press Watch. Move your cursor across a statue.', story:'The story of Ancient Egypt in frames', chapters:'Frames',
+  erasK:'Chronology', erasH:'Three thousand years <em class="gold">at a glance</em>', erasP:'Egyptian history is divided into kingdoms and intermediate periods. Dates are rounded: for the earliest eras they can be off by decades.',
+  nameK:'Medu netjer · words of the gods', nameH:'Your name <em class="gold">in a cartouche</em>', nameP:'Royal names were written inside a cartouche, a loop of rope meant to protect the name forever. Egyptians did not write vowels, so each sound here gets the closest sign.',
+  nameLabel:'Type a name', nameNote:'A simplified transliteration, not a real ancient Egyptian spelling.', nameDefault:'Nefertiti', ankh:'ankh',
+  quizK:'Scribe\'s exam', quizH:'Will you reach <em class="gold">the Field of Reeds?</em>', q:'Question', pts:'Score', next:'Next', result:'Result', done:'Done', again:'Start over', right:'Correct. ', wrong:'No. ', of:'of',
+  perfect:'Flawless. Your heart is lighter than the feather.', retry:'Scroll through the frames again and retry.', titles:['Scribe\'s apprentice','Scribe\'s apprentice','Temple scribe','Temple scribe','Priest','Vizier','Thoth himself'],
+  credits:'Photos from Wikimedia Commons' }
+};
+const ERAS = {
+ uk:[['бл. 5000 — 3100 до н. е.','Додинастичний','На берегах Нілу виростають села й два царства: Верхній і Нижній Єгипет. З\'являються перші знаки письма.'],['бл. 3100 — 2686','Ранньодинастичний','Цар Нармер об\'єднує дві землі й носить подвійну корону. Столицею стає Мемфіс.'],['2686 — 2181','Давнє царство','Епоха пірамід: Імхотеп будує ступінчасту піраміду Джосера, Хуфу — Велику піраміду в Гізі.'],['2181 — 2055','Перший перехідний','Влада фараонів слабне, правителі областей діють самі. Посухи й голод.'],['2055 — 1650','Середнє царство','Ментухотеп II знову об\'єднує країну. Розквіт літератури й класичної мови.'],['1650 — 1550','Другий перехідний','Північ захоплюють гіксоси. Вони приносять бойові колісниці й складні луки.'],['1550 — 1069','Нове царство','Імперія Хатшепсут, Тутмоса III, Ехнатона, Тутанхамона й Рамзеса II. Царів ховають у Долині царів.'],['1069 — 332','Пізні часи','Єгиптом правлять лівійські й нубійські династії, згодом перси.'],['332 — 30 до н. е.','Птолемеївський','Олександр Македонський, потім греки Птолемеї та Олександрія. Кінець — смерть Клеопатри VII.']],
+ en:[['c. 5000 — 3100 BC','Predynastic','Villages and two kingdoms grow along the Nile: Upper and Lower Egypt. The first written signs appear.'],['c. 3100 — 2686','Early Dynastic','King Narmer unites the two lands and wears the double crown. Memphis becomes the capital.'],['2686 — 2181','Old Kingdom','The age of pyramids: Imhotep builds Djoser\'s step pyramid, Khufu the Great Pyramid at Giza.'],['2181 — 2055','First Intermediate','Royal power weakens and provincial rulers act alone. Droughts and famine.'],['2055 — 1650','Middle Kingdom','Mentuhotep II reunites the country. Literature and the classical language flourish.'],['1650 — 1550','Second Intermediate','The Hyksos take the north and bring war chariots and composite bows.'],['1550 — 1069','New Kingdom','The empire of Hatshepsut, Thutmose III, Akhenaten, Tutankhamun and Ramesses II. Kings are buried in the Valley of the Kings.'],['1069 — 332','Late Period','Libyan and Nubian dynasties rule Egypt, later the Persians.'],['332 — 30 BC','Ptolemaic','Alexander the Great, then the Greek Ptolemies and Alexandria. It ends with the death of Cleopatra VII.']]
+};
+const QUIZ = {
+ uk:[{q:'Скільки приблизно кам\'яних блоків у Великій піраміді?', o:['230 тисяч','2,3 мільйона','23 мільйони','800 тисяч'], a:1, e:'Близько 2,3 мільйона блоків, у середньому понад 2 тонни кожен.'},{q:'Хто 1922 року відкрив гробницю Тутанхамона?', o:['Шампольйон','Наполеон','Говард Картер','Фліндерс Пітрі'], a:2, e:'Британський археолог Говард Картер, гробниця KV62 у Долині царів.'},{q:'Чиє обличчя, найімовірніше, має Великий Сфінкс?', o:['Рамзеса II','Хафра','Тутанхамона','Клеопатри'], a:1, e:'Більшість єгиптологів пов\'язують Сфінкса з фараоном Хафром, будівником другої піраміди Гізи.'},{q:'Проти чого зважували серце на суді Осіріса?', o:['Золотої гирі','Пера Маат','Каменю з Нілу','Скарабея'], a:1, e:'Проти пера Маат, богині істини й порядку.'},{q:'Скільки днів тривала муміфікація?', o:['7','30','70','365'], a:2, e:'Близько 70 днів, з них приблизно 40 тіло сушили в натроні.'},{q:'Хто розшифрував ієрогліфи за Розетським каменем?', o:['Говард Картер','Шампольйон','Геродот','Імхотеп'], a:1, e:'Жан-Франсуа Шампольйон оголосив про розшифровку 1822 року.'}],
+ en:[{q:'About how many stone blocks are in the Great Pyramid?', o:['230 thousand','2.3 million','23 million','800 thousand'], a:1, e:'About 2.3 million blocks, more than 2 tonnes each on average.'},{q:'Who opened Tutankhamun\'s tomb in 1922?', o:['Champollion','Napoleon','Howard Carter','Flinders Petrie'], a:2, e:'The British archaeologist Howard Carter, tomb KV62 in the Valley of the Kings.'},{q:'Whose face does the Great Sphinx most likely have?', o:['Ramesses II','Khafre','Tutankhamun','Cleopatra'], a:1, e:'Most Egyptologists link the Sphinx to Khafre, builder of the second pyramid at Giza.'},{q:'What was the heart weighed against at the judgement of Osiris?', o:['A golden weight','The feather of Maat','A stone from the Nile','A scarab'], a:1, e:'The feather of Maat, goddess of truth and order.'},{q:'How many days did mummification take?', o:['7','30','70','365'], a:2, e:'About 70 days, about 40 of them drying the body in natron.'},{q:'Who deciphered hieroglyphs using the Rosetta Stone?', o:['Howard Carter','Champollion','Herodotus','Imhotep'], a:1, e:'Jean-François Champollion announced the decipherment in 1822.'}]
+};
+
+/* ================= LANGUAGE + SKIN ================= */
+let lang = store.get('kemet-lang') || ((navigator.language||'').toLowerCase().startsWith('uk') ? 'uk' : 'uk');
+let skin = store.get('kemet-skin') || (document.documentElement.getAttribute('data-theme')==='light' ? 'light' : 'dark');
+const L = () => T[lang];
+
+function setSkin(v){
+  skin = v; document.body.dataset.skin = v; store.set('kemet-skin', v);
+  document.documentElement.style.background = v==='light' ? '#f4ebd8' : '#0a0806';
+  document.documentElement.style.colorScheme = v;
+  const b = $('#skinBtn');
+  b.innerHTML = v==='light'
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+  b.setAttribute('aria-label', v==='light' ? L().toDark : L().toLight);
+  fxSkin();
+}
+$('#skinBtn').addEventListener('click', ()=> setSkin(skin==='light'?'dark':'light'));
+
+function setLang(v){
+  lang = v; store.set('kemet-lang', v); document.documentElement.lang = v==='uk'?'uk':'en';
+  $('#langUk').setAttribute('aria-pressed', v==='uk'); $('#langEn').setAttribute('aria-pressed', v==='en');
+  document.querySelectorAll('[data-t]').forEach(el=>{ const s=L()[el.dataset.t]; if(s!==undefined) el.innerHTML=s; });
+  $('#logoTxt').textContent = L().kemet; $('#footTxt').textContent = L().kemet;
+  $('#story').setAttribute('aria-label', L().story); $('#chapters').setAttribute('aria-label', L().chapters);
+  $('#skinBtn').setAttribute('aria-label', skin==='light' ? L().toDark : L().toLight);
+  buildPanels(); buildEras(); buildCredits();
+  const inp=$('#nameIn'); if(inp.dataset.touched!=='1') inp.value = L().nameDefault; renderName();
+  renderQuiz(); syncPlay();
+}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
+
+/* ================= PANELS ================= */
+const panels = $('#panels');
+let P = [];
+function splitWords(html){
+  const withEm = html.replace(/<em>(.*?)<\/em>/g,(m,x)=>x.split(' ').map(w=>`<em class="w gold">${w}</em>`).join(' '));
+  return withEm.split(/(<em class="w gold">.*?<\/em>|\s+)/).filter(x=>x && !/^\s+$/.test(x)).map(x=>x.startsWith('<em')?x:`<span class="w">${x}</span>`).join(' ');
+}
+function buildPanels(){
+  panels.innerHTML = S.map((s,i)=>{
+    const d = s[lang];
+    const kem = s.hero ? `<h1 class="kemet" aria-label="${L().kemet}">${[...L().kemet].map(ch=>`<span class="w gold">${ch}</span>`).join('')}</h1>` : '';
+    return `<article class="panel${s.hero?' hero':''}" data-i="${i}">
+      <div class="ghost glyph" aria-hidden="true"><span class="gold">${s.g}</span></div>
+      <div class="eyebrow" data-r>${d.eye}</div>
+      ${kem}
+      <h2>${splitWords(d.t)}</h2>
+      <p class="body" data-r>${d.b}</p>
+      <div class="chips" data-r>${d.c.map(c=>`<span class="chip"><b>${c[0]}</b>${c[1]}</span>`).join('')}</div>
+      ${s.hero?`<div class="actions" data-r><button class="play" type="button" id="playHero"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg><span>${L().play}</span></button><div class="hint"><span class="mouse"></span>${L().hint}</div></div>`:''}
+    </article>`;}).join('');
+  P = [...panels.children].map(el=>({el, words:[...el.querySelectorAll('.w')], rest:[...el.querySelectorAll('[data-r]')], ghost:el.querySelector('.ghost')}));
+  $('#chapters').innerHTML = S.map((s,i)=>`<li><button type="button" data-i="${i}" id="ch${i}"><span>${s[lang].short}</span><i></i></button></li>`).join('');
+  const ph=$('#playHero'); if(ph) ph.addEventListener('click', togglePlay);
+  lastUI = -1;
+  updateUI(sceneProgress());
+}
+$('#cTot').textContent = String(N).padStart(2,'0');
+
+/* ================= SCROLL ================= */
+const story = $('#story');
+const STEP = 1.8;
+const SEC_PER_SCENE = 8;
+function sizeStory(){ story.style.height = ((N-1)*STEP + 1)*innerHeight + 'px'; }
+sizeStory();
+let lenis = null;
+try{ if(!RM && typeof Lenis!=='undefined'){ lenis = new Lenis({lerp:0.075, wheelMultiplier:0.9}); } }catch(e){ lenis=null; }
+const curY = () => lenis ? lenis.animatedScroll : scrollY;
+function goY(y, dur){ if(lenis) lenis.scrollTo(y,{duration:dur, immediate: dur===0, force:true}); else scrollTo({top:y, behavior:(RM||dur===0)?'auto':'smooth'}); }
+function scrollToScene(i){ goY(story.offsetTop + i*STEP*innerHeight + 2, 1.8); }
+$('#chapters').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b){ stopPlay(); scrollToScene(+b.dataset.i); } });
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{ const t=document.querySelector(a.getAttribute('href')); if(!t) return; e.preventDefault(); stopPlay(); lenis? lenis.scrollTo(t,{duration:1.8}) : t.scrollIntoView({behavior:RM?'auto':'smooth'}); }));
+function sceneProgress(){ return Math.min(N-1, Math.max(0, (scrollY - story.offsetTop)/(STEP*innerHeight))); }
+
+/* ---- film mode ---- */
+let playing = false, lastPT = 0;
+const storyEnd = () => story.offsetTop + (N-1)*STEP*innerHeight;
+function syncPlay(){
+  const atEnd = scrollY >= storyEnd() - 4;
+  const label = playing ? L().pause : (atEnd ? L().replay : L().play);
+  const icon = playing ? '<path d="M3 1.5h3v11H3zM8 1.5h3v11H8z" fill="currentColor"/>' : '<path d="M3 1.5v11l9-5.5z" fill="currentColor"/>';
+  ['#playTop','#playHero'].forEach(id=>{ const b=$(id); if(!b) return; b.querySelector('svg').innerHTML=icon; b.querySelector('span').textContent=label; b.setAttribute('aria-label',label); });
+}
+function startPlay(){
+  if(scrollY >= storyEnd()-4 || scrollY < story.offsetTop-10){ goY(story.offsetTop, 0); }
+  playing = true; lastPT = performance.now(); syncPlay();
+}
+function stopPlay(){ if(!playing) return; playing=false; syncPlay(); }
+function togglePlay(){ playing ? stopPlay() : startPlay(); }
+$('#playTop').addEventListener('click', togglePlay);
+['wheel','touchstart','keydown'].forEach(ev=>addEventListener(ev, e=>{ if(e.target && e.target.closest && e.target.closest('input,.play')) return; if(playing && !(ev==='keydown' && (e.key==='Tab'))) stopPlay(); }, {passive:true}));
+function playTick(t){
+  if(!playing) return;
+  const dt = Math.min(200, t - lastPT); lastPT = t;
+  const s = sceneProgress(), f = s - Math.floor(s);
+  const slow = (f < 0.42) ? 0.6 : 1.25;
+  const v = STEP*innerHeight/(SEC_PER_SCENE*1000) * slow;
+  const y = curY() + v*dt;
+  if(y >= storyEnd()){ goY(storyEnd(),0); playing=false; syncPlay(); return; }
+  goY(y, 0);
+}
+
+const smooth = (a,b,x)=>{ const t=Math.min(1,Math.max(0,(x-a)/(b-a))); return t*t*(3-2*t); };
+let lastUI = -1, intro = RM ? 1 : 0;
+function tcode(sec){ const fr=Math.floor((sec%1)*24), s=Math.floor(sec)%60, m=Math.floor(sec/60)%60, h=Math.floor(sec/3600); return [h,m,s,fr].map(x=>String(x).padStart(2,'0')).join(':'); }
+function updateUI(s){
+  const i = Math.min(N-1, Math.floor(s+0.25));
+  P.forEach((p,j)=>{
+    const d = s - j;
+    let o = j===0 ? 1 - smooth(0.36,0.52,d) : smooth(-0.14,-0.02,d) * (1 - smooth(0.36,0.52,d));
+    if (j===N-1) o = smooth(-0.14,-0.02,d);
+    if (RM) o = o>0.5?1:0;
+    p.el.style.opacity = o;
+    p.el.style.visibility = o<0.01 ? 'hidden' : 'visible';
+    p.el.setAttribute('aria-hidden', o<0.5);
+    const enter = j===0 && intro<1 ? intro : (d<0 ? smooth(-0.14,-0.01,d) : 1);
+    const leave = d>0 ? smooth(0.32,0.52,d) : 0;
+    p.words.forEach((w,k)=>{
+      const e = Math.min(1, Math.max(0, enter*1.7 - k*0.07));
+      const y = (1-e)*56 - leave*34*(1+k*0.12);
+      w.style.transform = `translate3d(0,${y.toFixed(1)}px,0)`;
+      w.style.opacity = e;
+      w.style.filter = e<0.999 ? `blur(${((1-e)*10).toFixed(1)}px)` : 'none';
+    });
+    p.rest.forEach((r,k)=>{ const e=Math.min(1,Math.max(0,enter*1.5 - 0.3 - k*0.08)); r.style.transform=`translate3d(0,${((1-e)*24 - leave*24).toFixed(1)}px,0)`; r.style.opacity = e; });
+    if(p.ghost) p.ghost.style.transform = `translate3d(${(d*-60).toFixed(1)}px,${(d*-160).toFixed(1)}px,0) scale(${(1+Math.abs(d)*0.15).toFixed(3)})`;
+  });
+  if (i!==lastUI){
+    lastUI=i;
+    $('#cNum').textContent = String(i+1).padStart(2,'0');
+    $('#credit').textContent = L().photo + ': ' + S[i].cr;
+    document.querySelectorAll('#chapters button').forEach((b,k)=>b.classList.toggle('on',k===i));
+  }
+  $('#cBar').style.transform = `scaleX(${(s/(N-1)).toFixed(4)})`;
+  $('#tc').innerHTML = tcode(s*SEC_PER_SCENE) + '<span class="tot"> / ' + tcode((N-1)*SEC_PER_SCENE) + '</span>';
+}
+
+/* ================= IMAGES ================= */
+const keys = S.map(s=>s.k);
+const imgs = {}, plates = {}, auxs = {};
+let loaded = 0; const total = keys.length*3;
+function ld(src){ return new Promise(res=>{ const im=new Image(); const fin=()=>{ loaded++; const p=loaded/total; $('#ldPct').textContent=Math.round(p*100)+'%'; $('#ldBar').style.transform=`scaleX(${p})`; res(im); }; im.onload=fin; im.onerror=fin; im.src=src; }); }
+const loadAll = Promise.all(keys.map(async k=>{
+  const [a,b,c] = await Promise.all([ld('img/'+k+'.jpg'), ld('img/'+k+'_plate.jpg'), ld('img/'+k+'_aux.jpg')]);
+  imgs[k]=a; plates[k]=b; auxs[k]=c;
+}));
+
+/* ================= WEBGL ================= */
+const cv = $('#gl');
+const gl = cv.getContext('webgl',{antialias:false, premultipliedAlpha:false});
+let mouse = {x:-9999,y:-9999,s:0,t:0};
+
+const VS = `attribute vec2 p; void main(){ gl_Position=vec4(p,0.,1.); }`;
+const FS = `precision highp float;
+uniform vec2 uRes; uniform float uT, uP, uMS, uPort, uLight, uRay; uniform vec2 uM;
+uniform sampler2D uPhA,uPlA,uAxA,uPhB,uPlB,uAxB;
+uniform vec2 uIA,uIB,uCA,uCB; uniform float uSA,uSB,uFA,uFB,uUA,uUB,uKA,uKB;
+uniform vec3 uCamA,uCamB; uniform float uDA,uDB;
+const vec3 PAP = vec3(0.957,0.922,0.847);
+const vec3 GOLD = vec3(1.0,0.79,0.40);
+float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
+vec3 ground(){ return uLight > 0.5 ? PAP : vec3(0.0); }
+float edgeM(vec2 uv, float F){
+  if (F < 0.5) return 1.0;
+  return smoothstep(0.0,0.2,uv.x)*smoothstep(1.0,0.8,uv.x)*smoothstep(0.0,0.1,uv.y)*smoothstep(1.0,0.88,uv.y);
+}
+vec2 par(sampler2D ax, vec2 uv, vec3 cam){
+  float d = texture2D(ax, clamp(uv,0.001,0.999)).r;
+  vec2 u1 = 0.5 + (uv-0.5)/(1.0 + cam.x*d) - cam.yz*d;
+  d = texture2D(ax, clamp(u1,0.001,0.999)).r;
+  return 0.5 + (uv-0.5)/(1.0 + cam.x*d) - cam.yz*d;
+}
+vec3 sceneCol(sampler2D ph, sampler2D pl, sampler2D ax, vec2 px, vec2 I, float S, vec2 C, float F, float K, vec3 cam, float u, float dir,
+              vec2 cell, float bs, float r, float r2, float mi, vec2 mdir){
+  vec2 uv = par(ax, (px - C)/(I*S) + 0.5, cam);
+  vec2 cu = clamp(uv,0.001,0.999);
+  float em = edgeM(uv, F);
+  vec3 plc = texture2D(pl, cu).rgb;
+  vec3 bg;
+  if (F > 0.5) {
+    if (uLight > 0.5) bg = mix(PAP, plc, em * (K > 0.5 ? 0.16 : 1.0));
+    else bg = plc * em * (K > 0.5 ? 0.45 : 0.9);
+  } else bg = plc;
+  float e = clamp((1.0-u)*1.7 - r*0.7, 0.0, 1.0); if (e < 0.03) e = 0.0;
+  float mm = mi*(0.6+0.4*r2);
+  vec2 q = (cell+0.5)*bs;
+  vec2 spx = px;
+  if (e > 0.0) spx = q - vec2(dir*e*e*(0.06+0.9*r2*r2)*uRes.x, (r-0.5)*e*0.07*uRes.y);
+  if (mm > 0.01) spx = mix(spx, q - mdir*mm*mm*uRes.y*(0.04+0.16*r) - (vec2(r,r2)-0.5)*mm*uRes.y*0.05, smoothstep(0.0,0.25,mm));
+  vec2 su = par(ax, (spx - C)/(I*S) + 0.5, cam);
+  vec2 scu = clamp(su,0.001,0.999);
+  float m = texture2D(ax, scu).g * edgeM(su, F);
+  vec3 sc = texture2D(ph, scu).rgb;
+  float lum = dot(sc, vec3(0.299,0.587,0.114));
+  sc = mix(sc, GOLD*(0.55+0.9*lum), clamp(e*0.85 + smoothstep(0.15,0.8,mm)*0.55, 0.0, 0.9));
+  float vis = m * (1.0 - e*e*0.75) * step(e*0.75, r2 + 0.04);
+  vis *= 1.0 - smoothstep(0.7,1.0,mm)*0.5;
+  return mix(bg, sc, vis);
+}
+void main(){
+  vec2 px = gl_FragCoord.xy;
+  vec2 sv = px/uRes;
+  float bs = max(4.0, floor(uRes.y/160.0));
+  vec2 cell = floor(px/bs);
+  float r = hash(cell), r2 = hash(cell+31.7), r3 = hash(cell.yx+7.13);
+  vec2 q = (cell+0.5)*bs;
+  float th = r*0.45 + (1.0 - sv.x)*0.55;
+  float k = clamp((uP*1.35 - th)/0.35, 0.0, 1.0);
+  float streak = 0.12 + 0.75*r2*r2;
+  vec2 pa = px, pb = px;
+  if (k > 0.0) pa = q + vec2(k*k*streak*uRes.x, (r3-0.5)*k*0.05*uRes.y);
+  float kb = 1.0 - k;
+  if (kb > 0.0 && uP > 0.0) pb = q - vec2(kb*kb*streak*uRes.x*0.55, (r3-0.5)*kb*0.04*uRes.y);
+  float md = length(px - uM)/(uRes.y*0.2);
+  float mi = (1.0 - smoothstep(0.0,1.0,md)) * uMS;
+  vec2 mdir = normalize(uM - px + 0.001);
+  vec3 ca = sceneCol(uPhA,uPlA,uAxA, pa, uIA,uSA,uCA,uFA,uKA, uCamA, uUA, uDA, cell,bs,r,r2, mi, mdir);
+  vec3 cb = ground();
+  if (uP > 0.0) cb = sceneCol(uPhB,uPlB,uAxB, pb, uIB,uSB,uCB,uFB,uKB, uCamB, uUB, uDB, cell,bs,r,r2, mi, mdir);
+  float la = dot(ca, vec3(0.299,0.587,0.114));
+  ca = mix(ca, GOLD*(0.5+0.8*la), smoothstep(0.05,0.5,k)*0.7);
+  ca = mix(ca, ground(), smoothstep(0.4,1.0,k)*0.9);
+  cb = mix(ground(), cb, 0.3 + 0.7*smoothstep(0.0,0.7,k));
+  float sel = r2*0.998 + 0.001;
+  vec3 col = mix(ca, cb, step(sel, k));
+  float glint = (1.0 - smoothstep(0.0, 0.07, abs(sel - k))) * step(0.001, k) * step(k, 0.995);
+  /* light rays */
+  vec2 src = vec2(0.80, 1.18) * uRes;
+  vec2 dd = (px - src) / uRes.y;
+  float ang = atan(dd.x, -dd.y);
+  float rays = pow(max(0.0, sin(ang*13.0 + uT*0.22)), 7.0)*0.6 + pow(max(0.0, sin(ang*21.0 - uT*0.15 + 1.3)), 9.0)*0.4;
+  rays *= exp(-length(dd)*1.15) * uRay;
+  float dl = uPort < 0.5 ? smoothstep(0.68,0.0,sv.x) : smoothstep(0.8,0.12,sv.y);
+  float vig = smoothstep(0.5,1.05,length((sv-0.5)*vec2(1.0,1.15))*1.3);
+  if (uLight > 0.5) {
+    col = mix(col, PAP, (uPort > 0.5 ? 0.9 : 0.8)*dl);
+    col = mix(col, PAP, 0.22*vig);
+    col = mix(col, vec3(0.83,0.56,0.18), rays*0.35);
+    col = mix(col, vec3(0.75,0.5,0.12), glint*0.8);
+  } else {
+    col *= 1.0 - (uPort > 0.5 ? 0.84 : 0.74)*dl;
+    col *= 1.0 - 0.42*vig;
+    col += GOLD * rays * 0.42;
+    col += GOLD * glint * 0.9;
+  }
+  col += (hash(px + fract(uT*0.37)*91.0) - 0.5)*0.035;
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+let prog=null, U={}, TX={}, black=null;
+function sh(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+function mkTex(src){ const t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  if(src && src.naturalWidth) gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,src);
+  else gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,255]));
+  return t; }
+const UN = ['uRes','uT','uP','uMS','uPort','uLight','uRay','uM','uPhA','uPlA','uAxA','uPhB','uPlB','uAxB','uIA','uIB','uCA','uCB','uSA','uSB','uFA','uFB','uUA','uUB','uKA','uKB','uCamA','uCamB','uDA','uDB'];
+function initGL(){
+  prog = gl.createProgram(); gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS)); gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS)); gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS)) throw new Error('link: '+gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const loc=gl.getAttribLocation(prog,'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  UN.forEach(n=>U[n]=gl.getUniformLocation(prog,n));
+  ['uPhA','uPlA','uAxA','uPhB','uPlB','uAxB'].forEach((n,i)=>gl.uniform1i(U[n],i));
+  black = mkTex(null);
+  keys.forEach(k=>{ TX[k] = {ph:mkTex(imgs[k]), pl:mkTex(plates[k]), ax:mkTex(auxs[k])}; });
+}
+let DPR=1;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 1.6);
+  cv.width=Math.round(cv.clientWidth*DPR); cv.height=Math.round(cv.clientHeight*DPR);
+  if(gl) gl.viewport(0,0,cv.width,cv.height);
+}
+function layout(s, zoom){
+  const W=cv.width, H=cv.height, im=imgs[s.k];
+  const iw=im.naturalWidth||1, ih=im.naturalHeight||1;
+  const portrait = W/H < 0.85;
+  if(!s.fit) return {i:[iw,ih], s:Math.max(W/iw,H/ih)*1.06*zoom, c:[W*0.5, H*0.5], f:0};
+  const k = portrait ? 0.74 : s.sc;
+  return {i:[iw,ih], s:Math.min(W/iw, H/ih)*k*zoom, c: portrait ? [W*0.5, H*0.62] : [W*s.cx, H*0.5], f:1};
+}
+function cam(s, f, t){
+  const m = s.cam || [0.32, 0.06, 0.02];
+  const breath = Math.sin(t*0.00035)*0.004;
+  return [m[0]*f, (f-0.5)*m[1] + breath, (0.5-f)*m[2] + breath*0.5];
+}
+function bindSide(side, s, Lo, camv, u, dir){
+  const base = side==='A'?0:3;
+  const tx = TX[s.k];
+  [tx.ph,tx.pl,tx.ax].forEach((t,i)=>{ gl.activeTexture(gl.TEXTURE0+base+i); gl.bindTexture(gl.TEXTURE_2D,t); });
+  gl.uniform2f(U['uI'+side], Lo.i[0], Lo.i[1]); gl.uniform1f(U['uS'+side], Lo.s);
+  gl.uniform2f(U['uC'+side], Lo.c[0], Lo.c[1]); gl.uniform1f(U['uF'+side], Lo.f); gl.uniform1f(U['uK'+side], s.cut);
+  gl.uniform3f(U['uCam'+side], camv[0], camv[1], camv[2]); gl.uniform1f(U['uU'+side], u); gl.uniform1f(U['uD'+side], dir);
+}
+function render(t){
+  const s = sceneProgress();
+  const i = Math.min(N-1, Math.floor(s)), f = s - i;
+  const A=S[i], B=S[Math.min(N-1,i+1)];
+  let p = 0;
+  if(i < N-1){ p = smooth(0.62, 1.0, f); if(RM) p = p>0.5?1:0; }
+  if(cv.width !== Math.round(cv.clientWidth*DPR) || cv.height !== Math.round(cv.clientHeight*DPR)) resize();
+  gl.uniform2f(U.uRes, cv.width, cv.height);
+  gl.uniform1f(U.uT, t*0.001);
+  gl.uniform1f(U.uPort, cv.width/cv.height < 0.85 ? 1 : 0);
+  gl.uniform1f(U.uLight, skin==='light' ? 1 : 0);
+  gl.uniform1f(U.uRay, A.ray + (B.ray - A.ray)*p);
+  const inA = i===0 ? (intro<1 ? smooth(0.2,1,intro) : 1) : smooth(0.0, 0.2, f);
+  const outA = i<N-1 ? smooth(0.5, 0.86, f) : 0;
+  const uA = RM ? 1 : inA * (1 - outA);
+  const dirA = f < 0.45 ? -1 : 1;
+  const bgP = (i===0 && intro<1) ? 0 : smooth(0.12,1,p);
+  bindSide('A', A, layout(A, 1 + 0.05*f), cam(A, f, t), uA, dirA);
+  bindSide('B', B, layout(B, 1), cam(B, 0, t), RM?1:0, -1);
+  gl.uniform1f(U.uP, bgP);
+  const r = cv.getBoundingClientRect();
+  gl.uniform2f(U.uM, mouse.x*DPR, (r.height - mouse.y)*DPR);
+  gl.uniform1f(U.uMS, mouse.s);
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+}
+
+/* ================= GOLD DUST LAYER ================= */
+const fx = $('#fx'), cx = fx.getContext('2d');
+let FW=0, FH=0, FD=1, parts=[], spriteD=null, spriteL=null;
+const GLY = [...'𓂀𓋹𓇳𓆣𓅃𓃠𓊹𓉴𓋴𓈖𓆄𓇋𓁹𓎛𓊨𓄤𓏞𓇓'];
+function mkSprite(c1, c2){
+  const s=document.createElement('canvas'); s.width=s.height=64; const g=s.getContext('2d');
+  const gr=g.createRadialGradient(32,32,0,32,32,32); gr.addColorStop(0,c1); gr.addColorStop(0.25,c2); gr.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=gr; g.fillRect(0,0,64,64); return s;
+}
+function fxSkin(){
+  spriteD = spriteD || mkSprite('rgba(255,244,210,1)','rgba(240,190,90,.55)');
+  spriteL = spriteL || mkSprite('rgba(150,98,20,.95)','rgba(176,122,34,.35)');
+}
+function fxResize(){
+  FD = Math.min(devicePixelRatio||1, 1.5);
+  FW = innerWidth; FH = innerHeight; fx.width = Math.round(FW*FD); fx.height = Math.round(FH*FD);
+  cx.setTransform(FD,0,0,FD,0,0);
+  const nDust = Math.round(Math.min(240, FW*FH/5200)), nBok = Math.round(Math.min(16, FW/90)), nGly = Math.round(Math.min(14, FW/100));
+  parts = [];
+  for(let i=0;i<nDust;i++) parts.push({k:0, x:Math.random()*FW, y:Math.random()*FH, z:0.25+Math.random()*0.75, ph:Math.random()*6.28, sp:0.4+Math.random()});
+  for(let i=0;i<nBok;i++) parts.push({k:1, x:Math.random()*FW, y:Math.random()*FH, z:0.3+Math.random()*0.7, ph:Math.random()*6.28, r:30+Math.random()*80});
+  for(let i=0;i<nGly;i++) parts.push({k:2, x:Math.random()*FW, y:Math.random()*FH, z:0.3+Math.random()*0.7, ph:Math.random()*6.28, ch:GLY[i%GLY.length], sz:26+Math.random()*60, rot:(Math.random()-.5)*0.6});
+}
+let vel = 0, lastSY = scrollY, fmx=-9999, fmy=-9999;
+addEventListener('mousemove', e=>{ fmx=e.clientX; fmy=e.clientY; }, {passive:true});
+function fxFrame(t, dt){
+  const light = skin==='light';
+  cx.clearRect(0,0,FW,FH);
+  const sy = scrollY; const dv = (sy - lastSY) / Math.max(1,dt) * 16; lastSY = sy;
+  vel += (Math.max(-30,Math.min(30,dv)) - vel) * 0.15;
+  const inStory = sy < storyEnd() + innerHeight*0.5;
+  cx.globalCompositeOperation = light ? 'source-over' : 'lighter';
+  const sp = light ? spriteL : spriteD;
+  const sec = t*0.001;
+  for(const p of parts){
+    if(p.k===0){
+      p.y -= (0.18 + 0.5*p.z*p.sp) * dt*0.06 + vel*p.z*0.35;
+      p.x += Math.sin(sec*0.6 + p.ph)*0.25*p.z;
+      const dx=p.x-fmx, dy=p.y-fmy, d2=dx*dx+dy*dy;
+      if(d2<22000){ const f=(1-d2/22000)*2.2; p.x+=dx/Math.sqrt(d2+1)*f; p.y+=dy/Math.sqrt(d2+1)*f; }
+      if(p.y<-20){ p.y=FH+20; p.x=Math.random()*FW; } if(p.y>FH+20){ p.y=-20; p.x=Math.random()*FW; }
+      if(p.x<-20) p.x=FW+20; if(p.x>FW+20) p.x=-20;
+      const tw = 0.5+0.5*Math.sin(sec*2.2*p.sp + p.ph);
+      const a = (light?0.55:0.75) * p.z * (0.35+0.65*tw);
+      const s = (1.2 + 3.2*p.z) * (light?1.1:1);
+      cx.globalAlpha = a;
+      cx.drawImage(sp, p.x - s*3, p.y - s*3, s*6, s*6);
+      const streak = Math.min(36, Math.abs(vel)*p.z*0.9);
+      if(streak>4){ cx.globalAlpha=a*0.4; cx.strokeStyle = light?'rgba(140,92,20,1)':'rgba(255,220,150,1)'; cx.lineWidth=s*0.5; cx.beginPath(); cx.moveTo(p.x,p.y); cx.lineTo(p.x, p.y + Math.sign(vel)*streak); cx.stroke(); }
+    } else if(p.k===1){
+      p.y -= 0.05*dt*0.06*p.z + vel*p.z*0.12;
+      p.x += Math.sin(sec*0.15 + p.ph)*0.15;
+      if(p.y<-p.r*2){ p.y=FH+p.r; } if(p.y>FH+p.r*2){ p.y=-p.r; }
+      cx.globalAlpha = (light?0.10:0.13) * p.z * (0.6+0.4*Math.sin(sec*0.5+p.ph));
+      cx.drawImage(sp, p.x-p.r, p.y-p.r, p.r*2, p.r*2);
+    } else {
+      p.y -= 0.12*dt*0.06*p.z + vel*p.z*0.28;
+      p.x += Math.sin(sec*0.2 + p.ph)*0.2;
+      if(p.y<-120){ p.y=FH+100; p.x=Math.random()*FW; } if(p.y>FH+120){ p.y=-100; p.x=Math.random()*FW; }
+      cx.save();
+      cx.globalCompositeOperation = 'source-over';
+      cx.globalAlpha = (light?0.13:0.16) * p.z * (inStory?1:0.5);
+      cx.translate(p.x,p.y); cx.rotate(p.rot + Math.sin(sec*0.3+p.ph)*0.25);
+      cx.font = `${Math.round(p.sz)}px "Noto Sans Egyptian Hieroglyphs", "Segoe UI Historic", serif`;
+      cx.fillStyle = light ? '#8c5f16' : '#f0c776';
+      cx.textAlign='center'; cx.textBaseline='middle';
+      cx.fillText(p.ch, 0, 0);
+      cx.restore();
+      cx.globalCompositeOperation = light ? 'source-over' : 'lighter';
+    }
+  }
+  cx.globalAlpha = 1;
+}
+
+/* ================= LOOP ================= */
+function onMove(x,y){ const r=cv.getBoundingClientRect(); mouse.x=x-r.left; mouse.y=y-r.top; mouse.t=performance.now(); }
+if(!RM){
+  addEventListener('mousemove', e=>onMove(e.clientX,e.clientY), {passive:true});
+  addEventListener('touchmove', e=>{ const t=e.touches[0]; if(t) onMove(t.clientX,t.clientY); }, {passive:true});
+}
+function startFallback(){
+  cv.hidden = true; const fb=$('#fallback'); fb.hidden=false;
+  fb.innerHTML = S.map((s,i)=>`<img alt="" src="img/${s.k}.jpg" data-i="${i}">`).join('');
+}
+let visible = true, glOK = false;
+new IntersectionObserver(es=>{ visible = es[0].isIntersecting; }).observe(story);
+addEventListener('resize', ()=>{ sizeStory(); if(glOK) resize(); fxResize(); });
+
+
+let lastT = performance.now(), t0 = lastT;
+function frame(t){
+  const dt = Math.min(64, t - lastT); lastT = t;
+  if(lenis) lenis.raf(t);
+  playTick(t);
+  if(intro<1 && loadedAll) intro = Math.min(1,(t - t0)/2400);
+  const idle = t - mouse.t > 700;
+  mouse.s += ((idle?0:1) - mouse.s) * (idle? 0.035 : 0.12);
+  const s = sceneProgress();
+  if(visible){
+    if(glOK) render(t);
+    else if(loadedAll){ const i=Math.min(N-1,Math.round(s)); document.querySelectorAll('#fallback img').forEach((x,k)=>x.classList.toggle('on',k===i)); }
+    updateUI(s);
+  }
+  if(!RM) fxFrame(t, dt);
+  const h = document.documentElement.scrollHeight - innerHeight;
+  $('#progress').style.transform = `scaleX(${h>0 ? scrollY/h : 0})`;
+  requestAnimationFrame(frame);
+}
+let loadedAll = false;
+requestAnimationFrame(frame);
+addEventListener('scroll', ()=>{ if(!playing) syncPlay(); }, {passive:true});
+
+loadAll.then(()=>{
+  $('#loader').classList.add('done');
+  if(gl){ try{ initGL(); resize(); glOK = true; } catch(err){ console.warn(err); } }
+  if(!glOK){ intro=1; startFallback(); }
+  t0 = performance.now(); loadedAll = true;
+});
+
+/* ================= REVEAL ================= */
+const rv = [...document.querySelectorAll('.rv')];
+rv.forEach(el=>{ if(el.getBoundingClientRect().top > innerHeight) el.classList.add('hide'); });
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.remove('hide'); io.unobserve(e.target); } }),{rootMargin:'0px 0px -10% 0px'});
+rv.forEach(el=>io.observe(el));
+
+/* ================= ERAS / CREDITS ================= */
+function buildEras(){ $('#eraGrid').innerHTML = ERAS[lang].map(e=>`<article class="era"><div class="yr">${e[0]}</div><h3>${e[1]}</h3><p>${e[2]}</p></article>`).join(''); }
+function buildCredits(){ $('#credits').innerHTML = S.map(s=>`<div>${s[lang].short}: <a href="${PAGES[s.k]}" target="_blank" rel="noopener">${s.cr}</a></div>`).join('') + `<div>${L().credits}</div>`; }
+
+/* ================= CARTOUCHE ================= */
+const GLM = {a:'𓄿',b:'𓃀',v:'𓆑',f:'𓆑',h:'𓉔',g:'𓎼',d:'𓂧',e:'𓇋',i:'𓇋',y:'𓇌',z:'𓊃',zh:'𓆓',j:'𓆓',k:'𓎡',c:'𓎡',l:'𓃭',m:'𓅓',n:'𓈖',o:'𓅱',u:'𓅱',w:'𓅱',p:'𓊪',r:'𓂋',s:'𓋴',t:'𓏏',kh:'𓐍',x:'𓐍',q:'𓈎',sh:'𓈙',ch:'𓍿'};
+const UK = {'а':'a','б':'b','в':'v','г':'h','ґ':'g','д':'d','е':'e','є':'ye','ж':'zh','з':'z','и':'y','і':'i','ї':'yi','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ь':'','ю':'yu','я':'ya','ы':'y','э':'e','ё':'yo','ъ':'',"'":''};
+function toGlyphs(str){
+  let lat=''; for(const ch of str.toLowerCase()){ if(UK[ch]!==undefined) lat+=UK[ch]; else if(/[a-z]/.test(ch)) lat+=ch; }
+  const out=[]; let i=0;
+  while(i<lat.length){ const two=lat.slice(i,i+2); if(['sh','ch','kh','zh'].includes(two)){ out.push([GLM[two],two]); i+=2; continue; } const c=lat[i]; if(GLM[c]) out.push([GLM[c],c]); i++; }
+  return out;
+}
+function renderName(){ const g=toGlyphs($('#nameIn').value); $('#cart').innerHTML = (g.length?g:[['𓋹',L().ankh]]).map(([x,l],k)=>`<div class="g"><span class="gold" style="animation-delay:${k*45}ms, 0s">${x}</span><small>${l}</small></div>`).join(''); }
+$('#nameIn').addEventListener('input', e=>{ e.target.dataset.touched='1'; renderName(); });
+
+/* ================= QUIZ ================= */
+let qi=0, score=0, finished=false, answered=-1;
+function renderQuiz(){
+  const Q = QUIZ[lang], t = L();
+  if(finished){
+    $('#qNum').textContent=t.done; $('#qScore').textContent=`${t.pts}: ${score}`;
+    $('#qText').textContent=`${score} ${t.of} ${Q.length} · ${t.titles[score]}`; $('#qOpts').innerHTML='';
+    $('#qExp').textContent = score===Q.length ? t.perfect : t.retry;
+    $('#qNext').hidden=false; $('#qNext').textContent=t.again; return;
+  }
+  const q=Q[qi];
+  $('#qNum').textContent=`${t.q} ${qi+1} / ${Q.length}`; $('#qScore').textContent=`${t.pts}: ${score}`;
+  $('#qText').textContent=q.q;
+  $('#qOpts').innerHTML=q.o.map((o,i)=>`<button class="qopt" type="button" id="qo${i}" data-i="${i}">${o}</button>`).join('');
+  if(answered>=0){ markAnswer(answered,false); } else { $('#qExp').textContent=''; $('#qNext').hidden=true; }
+}
+function markAnswer(i, count){
+  const Q = QUIZ[lang], q=Q[qi], t=L();
+  document.querySelectorAll('.qopt').forEach((x,k)=>{ x.disabled=true; if(k===q.a) x.classList.add('right'); if(k===i && i!==q.a) x.classList.add('wrong'); });
+  if(count && i===q.a) score++;
+  $('#qExp').textContent = (i===q.a ? t.right : t.wrong) + q.e;
+  $('#qScore').textContent=`${t.pts}: ${score}`;
+  $('#qNext').hidden=false; $('#qNext').textContent = qi===Q.length-1 ? t.result : t.next;
+}
+$('#qOpts').addEventListener('click', e=>{ const b=e.target.closest('.qopt'); if(!b||b.disabled) return; answered=+b.dataset.i; markAnswer(answered,true); });
+$('#qNext').addEventListener('click', ()=>{
+  if(finished){ finished=false; qi=0; score=0; answered=-1; renderQuiz(); return; }
+  answered=-1;
+  if(qi<QUIZ[lang].length-1){ qi++; renderQuiz(); return; }
+  finished=true; renderQuiz();
+});
+
+/* ================= INIT ================= */
+setSkin(skin);
+fxResize();
+setLang(lang);
+})();
+</script>
+</body>
+</html>
